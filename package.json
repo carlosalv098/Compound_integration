@@ -1,0 +1,28 @@
+{
+  "name": "compound",
+  "version": "1.0.0",
+  "description": "Supply, Borrow and Liquidations on Compound",
+  "main": "hardhat.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "defi",
+    "erc20",
+    "compound"
+  ],
+  "author": "Carlos Alvarez",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "chai": "^4.3.4",
+    "ethereum-waffle": "^3.4.0",
+    "hardhat": "^2.5.0"
+  },
+  "dependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@openzeppelin/contracts": "^4.2.0",
+    "dotenv": "^10.0.0",
+    "ethers": "^5.4.1"
+  }
+}
