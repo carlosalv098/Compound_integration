@@ -16,7 +16,6 @@ contract CompoundIntegration {
     struct tokenData {
         address token;
         address cToken;
-        uint decimals;
         bool registered;
     }
 
@@ -43,20 +42,24 @@ contract CompoundIntegration {
         require(cToken.mint(_amount) == 0, 'mint failed');
     }
 
-    function cTokenBalance(address _cToken) external view onlyOwner() returns(uint) {
-        return CErc20(_cToken).balanceOf(address(this));
+    function cTokenBalance(address _token) tokenIsRegistered(_token) external view onlyOwner() returns(uint) {
+        address cToken = tokensRegistered[_token].cToken;
+
+        return CErc20(cToken).balanceOf(address(this));
     }
 
     // to use this function you need to make an static call to avoid paying tx fees
-    function getInfo(address _cToken) external returns(uint exchangeRate, uint supplyRate) {
+    function getInfo(address _token) tokenIsRegistered(_token) external returns(uint exchangeRate, uint supplyRate) {
+        address cToken = tokensRegistered[_token].cToken;
+
         // Aount of current exchnage rate from cToken to underlying
-        exchangeRate = CErc20(_cToken).exchangeRateCurrent();
+        exchangeRate = CErc20(cToken).exchangeRateCurrent();
         // Amount addred to your supply balance this block
-        supplyRate = CErc20(_cToken).supplyRatePerBlock();
+        supplyRate = CErc20(cToken).supplyRatePerBlock();
     }
 
-    function addTokenData(address _token, address _cToken, uint _decimals) external onlyOwner() {
-        tokensRegistered[_token] = tokenData(_token, _cToken, _decimals, true);
+    function addTokenData(address _token, address _cToken) external onlyOwner() {
+        tokensRegistered[_token] = tokenData(_token, _cToken, true);
     }
 
     function balanceOfUnderlying(address _token) external tokenIsRegistered(_token) onlyOwner() returns(uint) {
