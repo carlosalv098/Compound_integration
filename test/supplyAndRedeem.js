@@ -16,6 +16,9 @@ contract('CompundIntegration', accounts => {
 
     const DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F';  
     const cDAI = '0x5d3a536e4d6dbd6114cc1ead35777bab948e3643'; 
+    const COMPTROLLER = '0x3d9819210a31b4961b30ef54be2aed79b9c9cd3b';
+    const PRICE_FEED = '0x841616a5CBA946CF415Efe8a326A621A794D0f97';
+
     const DAI_WHALE = process.env.DAI_WHALE
 
     const DEPOSIT_AMOUNT_COMPOUND = new BN(10).pow(new BN(18)).mul(new BN(1000000));
@@ -35,7 +38,7 @@ contract('CompundIntegration', accounts => {
         notOwner = accounts[1];
         token = await IERC20.at(DAI);
         cToken = await CErc20.at(cDAI);
-        compoundIntegration = await CompoundIntegration.new();
+        compoundIntegration = await CompoundIntegration.new(COMPTROLLER, PRICE_FEED);
 
         await network.provider.request({
             method: "hardhat_impersonateAccount",
