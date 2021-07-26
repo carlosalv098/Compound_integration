@@ -85,7 +85,7 @@ contract CompoundIntegration {
         return collateral_factor;
     }
 
-    function getAccountLiquidty() onlyOwner() external view returns(uint liquidity, uint shortfall) {
+    function getAccountLiquidity() onlyOwner() external view returns(uint liquidity, uint shortfall) {
         (uint _error, uint _liquidity, uint _shortfall) = comptroller.getAccountLiquidity(address(this));
         require(_error == 0, 'there is an error getting account liquidity');
         // liquidity is in USD => amount that we can borrow
@@ -93,10 +93,11 @@ contract CompoundIntegration {
         return(_liquidity, _shortfall);
     }
 
-    function getPriceFeed(address _token) tokenIsRegistered(_token) external view returns(uint) {
-        address cToken = tokensRegistered[_token].cToken;
+    function getPriceFeed(address _cToken) external view returns(uint) {
+        (bool isListed, uint collateral_factor, bool isComped) = comptroller.markets(_cToken);
+        require(isListed, 'cToken is not listed');
         // this returns the price opf the token to borrow in USD
-        return priceFeed.getUnderlyingPrice(cToken);
+        return priceFeed.getUnderlyingPrice(_cToken);
     }
 
     // _token => token provided, internally this will get the corresponding cToken to use as collateral and calculate liqudity and shortfall

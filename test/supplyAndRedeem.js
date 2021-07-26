@@ -16,6 +16,7 @@ contract('CompundIntegration', accounts => {
 
     const DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F';  
     const cDAI = '0x5d3a536e4d6dbd6114cc1ead35777bab948e3643'; 
+    
     const COMPTROLLER = '0x3d9819210a31b4961b30ef54be2aed79b9c9cd3b';
     const PRICE_FEED = '0x841616a5CBA946CF415Efe8a326A621A794D0f97';
 
@@ -23,7 +24,7 @@ contract('CompundIntegration', accounts => {
 
     const DEPOSIT_AMOUNT_COMPOUND = new BN(10).pow(new BN(18)).mul(new BN(1000000));
 
-    let token, cToken, compoundIntegration, owner, notOwner, before, after, block, time_initial_supply
+    let token, cToken, compoundIntegration, owner, notOwner, before, after, time_initial_supply
 
     function sendEther(web3, from, to, amount) {
         return web3.eth.sendTransaction({
@@ -49,12 +50,12 @@ contract('CompundIntegration', accounts => {
 
     })
 
-    const snapshot = async (compoundIntegration, token, cToken) => {
-        const { exchangeRate, supplyRate } = await compoundIntegration.getInfo.call(DAI)
+    const snapshot = async (compoundIntegration, token) => {
+        const { exchangeRate, supplyRate } = await compoundIntegration.getInfo.call(token.address)
         return {
             exchangeRate,
             supplyRate,
-            balanceOfUnderlying: await compoundIntegration.balanceOfUnderlying.call(DAI),
+            balanceOfUnderlying: await compoundIntegration.balanceOfUnderlying.call(token.address),
             tokenBalance: await token.balanceOf(compoundIntegration.address),
             cTokenBalance: await cToken.balanceOf(compoundIntegration.address)
         }
@@ -77,7 +78,7 @@ contract('CompundIntegration', accounts => {
         console.log(`sending ${DEPOSIT_AMOUNT_COMPOUND/1e18.toString()} DAI to the owner...`);
         console.log(`contract owner DAI balance: ${await token.balanceOf(owner)/1e18.toString()} \n`)
 
-        before = await snapshot(compoundIntegration, token, cToken);
+        before = await snapshot(compoundIntegration, token);
 
         console.log(`exchange rate ${before.exchangeRate}`)
         console.log(`supply rate ${before.supplyRate} \n`)
