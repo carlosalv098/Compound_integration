@@ -29,11 +29,8 @@ contract('CompoundIntegration', accounts => {
     const DAI_WHALE = process.env.DAI_WHALE;
 
     const UNI_AMOUNT = new BN(10).pow(new BN(UNI_DECIMALS)).mul(new BN(4000));
-    //  DAI to pay interests
-    const DAI_AMOUNT_INTERESTS = new BN(10).pow(new BN(UNI_DECIMALS)).mul(new BN(1));
 
-
-    let token, cToken, token_borrow, cToken_borrow, compoundIntegration, owner, notOwner, before, after, time_borrow
+    let token, cToken, token_borrow, cToken_borrow, compoundIntegration, owner, notOwner, before, after
 
     function sendEther(web3, from, to, amount) {
         return web3.eth.sendTransaction({
@@ -41,19 +38,6 @@ contract('CompoundIntegration', accounts => {
           to,
           value: web3.utils.toWei(amount.toString(), "ether"),
         });
-    }
-
-    function pow(x, y) {
-        x = cast(x);
-        y = cast(y);
-        return x.pow(y);
-    }
-
-    function cast(x) {
-        if (x instanceof BN) {
-          return x;
-        }
-        return new BN(x);
     }
 
     beforeEach(async () => {
@@ -95,7 +79,7 @@ contract('CompoundIntegration', accounts => {
 
 
         return {
-            collateral_factor: collateral_factor.div(pow(10, 18 -2)) / 100,
+            collateral_factor: collateral_factor.div(new BN(10).pow(new BN(18 - 2))) / 100,
             //supplied: supplied.div(pow(10, UNI_DECIMALS - 2)) / 100,
             supplied: supplied.div(new BN(10).pow(new BN(UNI_DECIMALS - 2))) / 100,
 
