@@ -7,15 +7,17 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 contract Liquidation {
 
-    address owner;
+    address public owner;
     Comptroller public comptroller;
-
-    IERC20 public token_borrowed;
-    CErc20 public cToken_borrowed;
 
     constructor(address _comptroller) {
         owner = msg.sender;
         comptroller = Comptroller(_comptroller);
+    }
+
+    modifier onlyOwner {
+        require(msg.sender == owner, 'only the owner of this contract can call this function');
+        _;
     }
 
     function getCloseFactor() external view returns(uint) {
@@ -37,6 +39,11 @@ contract Liquidation {
         return cToken_collateral_amount;
     }
 
+    //  if supplied DAI _cToken_collateral => cDAI
+    function getSupplyBalance(address _cToken_collateral) external returns(uint) {
+        return CErc20(_cToken_collateral).balanceOfUnderlying(address(this));
+    }
+
     function liquidate(
         address _borrower,              // account is going to be liquidated
         uint _repay_amount,             // how much
@@ -50,5 +57,14 @@ contract Liquidation {
         require(CErc20(_cToken_borrowed).liquidateBorrow(_borrower, _repay_amount, _cToken_collateral) == 0,
         'liquidate failed'
         );
+    }
+
+    function redeem_CErc20(address _cToken) onlyOwner() external {
+        uint amount_redeem = CErc20(_cToken).balanceOf(address(this));
+        require(CErc20(_cToken).redeem(amount_redeem) == 0, 'redeem failed');
+    }
+
+    function transfer_token(address _token, address _recipient, uint _amount) onlyOwner() external {
+        IERC20(_token).transfer(_recipient, _amount);
     }
 }

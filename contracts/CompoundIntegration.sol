@@ -10,7 +10,7 @@ contract CompoundIntegration {
 
     using SafeMath for uint;
 
-    address owner;
+    address public owner;
     Comptroller public comptroller;
     PriceFeed public priceFeed;
 
@@ -106,6 +106,7 @@ contract CompoundIntegration {
         address cToken = tokensRegistered[_token].cToken;
         address[] memory cTokens = new address[](1);
         cTokens[0] = cToken;
+        // enter market
         uint[] memory errors = comptroller.enterMarkets(cTokens);
         require(errors[0] == 0, 'comptroller.enterMarkets failed');
         // check account liquidity
@@ -122,6 +123,32 @@ contract CompoundIntegration {
         // get 50% of max_borrow
         uint amount_to_borrow = (max_borrow.mul(50)).div(100);
         // actual borrow happens here, it has to return 0 otherwise there is an error
+        require(CErc20(_cTokenToBorrow).borrow(amount_to_borrow) == 0, 'borrow failed');
+    }
+
+    function enterMarket(address _token_supply) tokenIsRegistered(_token_supply) onlyOwner() external {
+        address cToken = tokensRegistered[_token_supply].cToken;
+        address[] memory cTokens = new address[](1);
+        cTokens[0] = cToken;
+
+        uint[] memory errors = comptroller.enterMarkets(cTokens);
+        require(errors[0] == 0, 'enter market failed');
+    }
+
+    // decimals of token to borrow
+    function borrowMax(address _cTokenToBorrow, uint _decimals) onlyOwner() external {
+        // check account liquidity
+        (uint _error, uint _liquidity, uint _shortfall) = comptroller.getAccountLiquidity(address(this));
+        require(_error == 0, 'there is an error getting account liquidity, function borrow');
+        require(_liquidity > 0, 'no liquidity available to borrow');
+        require(_shortfall == 0, 'account underwater, shorfall has to be greater than 0');
+        
+        // calculate max borrow
+        // get price of cToken that we want to borrow
+        uint price = priceFeed.getUnderlyingPrice(_cTokenToBorrow);
+        uint max_borrow = (_liquidity.mul(10 ** _decimals)).div(price);
+        // get 99% of max_borrow
+        uint amount_to_borrow = (max_borrow.mul(9999)).div(10000);
         require(CErc20(_cTokenToBorrow).borrow(amount_to_borrow) == 0, 'borrow failed');
     }
 
