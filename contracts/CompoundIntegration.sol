@@ -59,7 +59,7 @@ contract CompoundIntegration {
     function getInfo(address _token) tokenIsRegistered(_token) external returns(uint exchangeRate, uint supplyRate) {
         address cToken = tokensRegistered[_token].cToken;
 
-        // Aount of current exchnage rate from cToken to underlying
+        // Amount of current exchnage rate from cToken to underlying
         exchangeRate = CErc20(cToken).exchangeRateCurrent();
         // Amount addred to your supply balance this block
         supplyRate = CErc20(cToken).supplyRatePerBlock();

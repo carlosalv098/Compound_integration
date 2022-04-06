@@ -15,7 +15,8 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: process.env.MAINNET_RPC
+        url: process.env.MAINNET_RPC,
+        blockNumber: 12883200,
       }
     }
   }
